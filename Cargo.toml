@@ -1,0 +1,14 @@
+[package]
+name = "ascii_shader"
+version = "0.2.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "=4.5.20", features = ["derive"] }
+crossterm = "0.27"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "gif", "bmp"] }
+nokhwa = { version = "0.10", features = ["input-native"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
