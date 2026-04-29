@@ -125,13 +125,17 @@ fn pick_continuity_index() -> Result<u32, Box<dyn std::error::Error>> {
     for c in &cams {
         let desc = c.description().to_lowercase();
         let name = c.human_name().to_lowercase();
-        // Match the iPhone by its AVFoundation device-type marker (or model name).
-        // Exclude "Desk View" — that's a separate iPhone-backed camera type.
+        // Require a real Continuity/iPhone marker. `avcapturedevicetypeexternal`
+        // alone matches virtual cams (OBS, Snap, mmhmm) which then fail with
+        // unsupported pixel formats — so it's not enough on its own.
         let looks_continuity = desc.contains("avcapturedevicetypecontinuitycamera")
-            || desc.contains("avcapturedevicetypeexternal")
+            || name.contains("iphone")
             || desc.contains("iphone");
+        let is_virtual = ["obs", "snap camera", "mmhmm", "virtual"]
+            .iter()
+            .any(|v| name.contains(v) || desc.contains(v));
         let is_desk_view = name.contains("desk view") || desc.contains("desk view");
-        if !looks_continuity || is_desk_view {
+        if !looks_continuity || is_desk_view || is_virtual {
             continue;
         }
         if let CameraIndex::Index(i) = c.index() {
